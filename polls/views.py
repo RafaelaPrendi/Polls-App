@@ -5,6 +5,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from .models import Choice, Question
+from django.views import generic
 #from django.template import loader
 # Create your views here.
 
@@ -29,6 +30,22 @@ def details(request, question_id):
 def results(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
     return render(request, 'polls/results.html',{'question': question})
+
+class IndexView(generic.ListView):
+    template_name = 'polls/index.html'
+    context_object_name = 'latest_question_list'
+    def get_queryset(self):
+        ''' return last 5 published questions '''
+        return Question.objects.order_by('_pub_date')[:5]
+
+class DetailsView(generic.DetailView):
+    model = Question
+    template_name = 'polls/details.html'
+
+class ResultsView(generic.DetailView):
+    model = Question
+    template_name = 'polls/results.html'
+
 
 # handling voting for a question
 def vote(request, question_id):
